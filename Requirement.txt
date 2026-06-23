@@ -1,0 +1,940 @@
+USER REGISTRATION - JWT + Access token + Refresh token + bcrypt
+
+1. Self registration 
+2. Agent Registration 
+
+ 
+Registration Fields
+• Full Name
+• Mobile Number
+• Email Address
+• Date of Birth
+• Gender
+• Address
+• Aadhaar Number
+• Profile Photo 
+
+profile photo - Amazon S3 OR VPS 
+
+React
+ ↓
+Request Upload URL
+ ↓
+Node Backend
+ ↓
+Generate S3 Pre-Signed URL
+ ↓
+React Uploads Directly To S3
+ ↓
+Store URL In MongoDB
+
+
+1 Million Users
+1,000,000 × 500 KB
+= 500 GB
+
+AWS S3:
+
+500 × $0.023
+≈ $11.5/month
+≈ ₹1,000/month
+
+
+Cloudinary - $99/month (~₹8,500/month)
+Firebase
+
+
+Adhaar Verification 
+
+1. Direct Access to DigiLocker  
+API SetuBecause you are an insurance provider, you qualify as a Regulated Financial Entity. You can register directly on the DigiLocker Requesters Portal as an official "Requester."The Advantage: You will likely pass the government compliance check without friction.The Use Case: This allows you to securely pull digital insurance policies, health records, and verified Aadhaar details directly into your onboarding or claims system for free.
+IRDAI Approval
+
+2. IRDAI and UIDAI Approvals
+To legally perform direct Aadhaar-based KYC (e-KYC) for issuing policies or processing claims, you must be recognized under the insurance regulator:
+
+3. Integration with ABDM (Ayushman Bharat Digital Mission)
+As a healthcare insurance player in India, you are required to integrate with the National Health Authority (NHA) ecosystem.ABHA Verification: Instead of just verifying standard Aadhaar, you must register your organization with the ABDM Digital Health Incentive Scheme (DHIS) portal.The Flow: This allows you to verify a user's ABHA (Ayushman Bharat Health Account) ID, which is directly linked to their Aadhaar. This grants you secure, consent-based access to their digital medical histories for instant underwriting and automated
+
+
+
+OTP Verification
+
+React App
+    ↓
+Node.js Backend
+    ↓
+Generate OTP
+    ↓
+Store OTP in Redis
+    ↓
+Send SMS via SMS Provider
+    ↓
+User Enters OTP
+    ↓
+Verify OTP
+    ↓
+Account Verified
+
+Option 1:MSG91 - for india  - ₹0.12 - ₹0.25 per OTP
+
+Option 2:Twilio- For outside india
+
+Option 3: Firebase Authentication
+
+
+
+CARD CREATION 
+
+
+
+1. INDIVIDUAL PLAN 
+2. Family PLAN 
+
+
+Mediclaim Eligibility
+Loan Eligibility
+Hospital Access
+Wallet Benefits
+Claim Validation
+
+
+
+INDIVIDUAL PLAN
+
+User Registration
+        ↓
+Mobile OTP Verification
+        ↓
+Aadhaar Verification
+        ↓
+KYC Approved
+        ↓
+Select Plan
+        ↓
+Payment Success
+        ↓
+Generate Individual Card
+        ↓
+Activate Card
+
+MODEL - 
+Card {
+    _id,
+
+    cardNumber,
+
+    userId,
+
+    planId,
+
+    qrCodeUrl,
+
+    cardPdfUrl,
+
+    status,
+
+    claimEligibility,
+
+    validityStart,
+
+    validityEnd,
+
+    createdAt,
+
+    updatedAt
+}
+
+
+
+FAMILY CARD - Hybrid CARD 
+Family Card:
+MCI-FAM-0001
+
+Individual CARD: 
+Primary Holder:
+MCI-FAM-0001-01
+
+Spouse:
+MCI-FAM-0001-02
+
+Son:
+MCI-FAM-0001-03
+
+Daughter:
+MCI-FAM-0001-04
+
+Family Card
+MCI-FAM-0001
+        │
+ ┌──────┼──────┬──────┐
+ │      │      │      │
+-01    -02    -03    -04
+Rahul  Priya  Aryan  Neha
+
+
+
+
+CARD STATUS
+{
+   DRAFT,
+   MOBILE_VERIFIED,
+   KYC_PENDING,
+   UNDER_REVIEW,
+   APPROVED,
+   PAYMENT_PENDING,
+   ACTIVE,
+   SUSPENDED,
+   BLOCKED,
+   EXPIRED,
+   REJECTED
+}
+
+CLAIM 
+User Login
+↓
+Create Claim
+↓
+Upload Documents
+↓
+Fraud Check
+↓
+Admin Review
+↓
+Approval / Rejection
+↓
+Settlement
+
+
+
+Step 1: Create Claim
+
+User clicks:
+
+Create New Claim
+
+Form:
+
+Claim Type
+Hospital Name
+Treatment Date
+Claim Amount
+Description
+
+Example:
+
+{
+  "claimType": "Hospital",
+  "hospital": "Apollo Hospital",
+  "amount": 50000
+}
+Step 2: Upload Documents
+
+Documents stored in:
+
+AWS S3
+
+Example:
+
+Hospital Bill
+Discharge Summary
+Prescription
+Medical Reports
+
+Folder:
+
+claims/
+   claimId/
+      bill.pdf
+      prescription.pdf
+      report.pdf
+Step 3: Automatic Validation
+
+System checks:
+
+Card Active?
+ACTIVE → Continue
+EXPIRED → Reject
+Claim Limit
+
+Example:
+
+Plan Limit = ₹2,00,000
+
+Claim = ₹2,50,000
+
+Result:
+
+Reject
+Duplicate Claim
+
+System checks:
+
+Bill Number
+Hospital
+Date
+Amount
+
+If found:
+
+Flag Claim
+Claim Status Lifecycle
+DRAFT
+↓
+SUBMITTED
+↓
+UNDER_REVIEW
+↓
+VERIFICATION_PENDING
+↓
+APPROVED
+↓
+SETTLED
+
+Or:
+
+UNDER_REVIEW
+↓
+REJECTED
+Admin Claim Review
+
+Admin sees:
+
+User Details
+Card Details
+Documents
+Claim Amount
+History
+
+Actions:
+
+Approve
+Reject
+Request Documents
+Flag Fraud
+Family Card Claims
+
+Example:
+
+Family Plan Limit
+₹2,00,000
+
+Members:
+
+Rahul
+Priya
+Aryan
+
+Claim:
+
+Aryan → ₹50,000
+
+Remaining:
+
+₹1,50,000
+
+The claim must always be linked to a specific member.
+
+Fraud Prevention
+
+System should automatically detect:
+
+Duplicate Bills
+Duplicate Claims
+Expired Cards
+Fake Documents
+Multiple Claims Same Day
+
+Fraud Score:
+
+0-30   Safe
+31-60  Review
+61-100 High Risk
+Settlement
+
+Once approved:
+
+Option A
+
+Direct Bank Transfer
+
+User Bank Account
+Option B
+
+Wallet Credit
+
+MedCred Wallet
+Database Structure
+Claim
+{
+   _id,
+
+   claimNumber,
+
+   userId,
+
+   cardId,
+
+   memberId,
+
+   claimType,
+
+   hospitalName,
+
+   amount,
+
+   approvedAmount,
+
+   status,
+
+   submittedAt
+}
+Claim Documents
+{
+   claimId,
+
+   documentType,
+
+   documentUrl
+}
+
+LOAN ELIGIBILITY
+
+
+Card Active
++
+30 Days Completed
++
+KYC Verified
++
+No Existing Active Loan
+=
+Eligible
+
+
+HOSPITAL - complex
+
+ADMIN PANEL
+
+For MedCred, the **Admin Panel is the heart of the entire system**. Every major operation should be controlled from here.
+
+If I were designing this as a production healthcare platform, I would divide the Admin Panel into the following modules:
+
+---
+
+# Dashboard
+
+The first screen after login.
+
+### Statistics
+
+```text id="n1d2k3"
+Total Users
+Total Family Cards
+Total Individual Cards
+Active Cards
+Expired Cards
+Pending Approvals
+Total Claims
+Pending Claims
+Approved Claims
+Rejected Claims
+Total Agents
+Active Hospitals
+Revenue
+```
+
+### Graphs
+
+```text id="m4f5g6"
+Monthly Registrations
+Claims Trend
+Revenue Trend
+Agent Performance
+Card Activations
+```
+
+---
+
+# User Management
+
+Manage all users.
+
+### Features
+
+```text id="u7h8j9"
+View Users
+Search Users
+Filter Users
+View User Details
+Verify Users
+Suspend Users
+Block Users
+Unblock Users
+```
+
+### User Profile View
+
+```text id="p1q2r3"
+Personal Information
+KYC Details
+Cards
+Claims
+Loans
+Family Members
+Transaction History
+```
+
+---
+
+# Card Management
+
+Most important module.
+
+### Individual Cards
+
+```text id="c4d5e6"
+Pending Cards
+Approved Cards
+Active Cards
+Expired Cards
+Blocked Cards
+```
+
+Actions:
+
+```text id="f7g8h9"
+Approve
+Reject
+Suspend
+Block
+Renew
+```
+
+---
+
+# Family Card Management
+
+### Features
+
+```text id="a1b2c3"
+View Family Cards
+View Members
+Approve Family Members
+Verify Relationships
+Manage Benefits
+```
+
+---
+
+# Claim Management
+
+The core business module.
+
+### Features
+
+```text id="k1l2m3"
+View Claims
+Review Claims
+Approve Claims
+Reject Claims
+Flag Fraud
+Request Documents
+Track Claim History
+```
+
+### Claim Details
+
+```text id="n4o5p6"
+Claim Number
+User Details
+Card Details
+Hospital Details
+Documents
+Claim Amount
+Approved Amount
+Status
+```
+
+---
+
+# Loan Management
+
+### Features
+
+```text id="q7r8s9"
+View Applications
+Approve Loans
+Reject Loans
+Track Eligibility
+Manage Loan Rules
+```
+
+Admin sees:
+
+```text id="t1u2v3"
+Waiting Period
+Loan Status
+Active Loans
+Loan History
+```
+
+---
+
+# Agent Management
+
+One of the biggest modules.
+
+### Features
+
+```text id="w4x5y6"
+Approve Agents
+Reject Agents
+Suspend Agents
+Block Agents
+View Performance
+Manage Commissions
+```
+
+### Agent Details
+
+```text id="z7a8b9"
+Personal Details
+Documents
+Users Registered
+Cards Activated
+Earnings
+Wallet
+```
+
+---
+
+# Agent Commission Management
+
+### Features
+
+```text id="c1d2e3"
+Registration Incentive
+Card Activation Incentive
+Bonus Programs
+Settlement Approval
+```
+
+Example:
+
+```text id="f4g5h6"
+User Registration = ₹50
+Card Activation = ₹100
+```
+
+---
+
+# Hospital Management
+
+### Features
+
+```text id="i7j8k9"
+Add Hospital
+Edit Hospital
+Verify Hospital
+Activate Hospital
+Suspend Hospital
+```
+
+### Hospital Details
+
+```text id="l1m2n3"
+Name
+Location
+Contact
+Speciality
+Claim Supported
+Status
+```
+
+---
+
+# KYC Management
+
+Very important.
+
+### Features
+
+```text id="o4p5q6"
+Review Aadhaar
+Review PAN
+Approve KYC
+Reject KYC
+Request Documents
+```
+
+---
+
+# Notification Management
+
+### Features
+
+```text id="r7s8t9"
+Broadcast Notifications
+SMS Notifications
+Push Notifications
+Email Notifications
+```
+
+Examples:
+
+```text id="u1v2w3"
+Card Expiry Reminder
+Claim Update
+Loan Eligibility Alert
+```
+
+---
+
+# Wallet & Transactions
+
+### Features
+
+```text id="x4y5z6"
+View Transactions
+Refund Management
+Wallet Credits
+Agent Settlements
+```
+
+---
+
+# Fraud Detection Center
+
+Extremely important.
+
+### Features
+
+```text id="a7b8c9"
+Duplicate Aadhaar
+Duplicate Claims
+Fake Documents
+Multiple Accounts
+Suspicious Activity
+```
+
+Admin Actions:
+
+```text id="d1e2f3"
+Flag User
+Suspend User
+Block User
+Clear User
+```
+
+---
+
+# Reports & Analytics
+
+### Reports
+
+```text id="g4h5i6"
+User Reports
+Claim Reports
+Agent Reports
+Revenue Reports
+Card Reports
+Loan Reports
+```
+
+### Export
+
+```text id="j7k8l9"
+Excel
+PDF
+CSV
+```
+
+---
+
+# System Settings
+
+Admin configurable settings.
+
+### Card Settings
+
+```text id="m1n2o3"
+Card Validity
+Plan Pricing
+Claim Limits
+```
+
+### Loan Settings
+
+Waiting Period
+Maximum Loan Amount
+Eligibility Rules
+```
+
+### Agent Settings
+
+```text id="s7t8u9"
+Commission Rates
+Agent Approval Rules
+```
+
+---
+
+# Role Management
+
+For multiple admins.
+
+### Roles
+
+```text id="v1w2x3"
+Super Admin
+Claims Manager
+Agent Manager
+KYC Manager
+Finance Manager
+Support Executive
+```
+
+Example:
+
+```text id="y4z5a6"
+Claims Manager
+Can Approve Claims
+Cannot Manage Agents
+```
+
+---
+
+# Audit Logs
+
+Every action should be tracked.
+
+### Example
+
+```text id="b7c8d9"
+Admin Rahul
+
+Approved Claim #123
+
+Date:
+22 June 2026
+```
+
+AGENT REGISTRATION 
+Agent Registration
+↓
+KYC Verification
+↓
+Admin Approval
+↓
+Agent Activation
+↓
+User Registration
+↓
+Card Activation
+↓
+Commission Generation
+↓
+Settlement
+
+
+
+Agent Dashboard
+
+After login:
+
+Total Users Registered
+Cards Activated
+Pending Applications
+Commission Earned
+Wallet Balance
+Performance Rating
+
+Agent can:
+
+Create User
+Upload Documents
+Verify Mobile
+Submit KYC
+
+Select Plan
+Track Application
+
+
+Commission Workflow
+Agent Registers User
+↓
+User Approved
+↓
+Card Activated
+↓
+Commission Generated
+↓
+Wallet Credited
+↓
+Settlement
+Settlement Module
+
+Admin reviews commissions.
+
+Pending Settlement
+↓
+Approved
+↓
+Paid
+
+Status:
+
+Pending
+Approved
+Paid
+Rejected
+
+
+
+NOTIFICATION
+Push Notifications-Firebase Cloud Messaging (FCM)
+SMS Notifications-MSG91
+Email Notifications-Amazon SES
+In-App Notifications-MongoDB Collection
+
+
+PAYMENT
+| Gateway                                                                                                       | Pricing (Domestic)                            | Setup Fee          | Payouts   | Best For                               |
+| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | ------------------ | --------- | -------------------------------------- |
+| [Razorpay](https://razorpay.com?utm_source=chatgpt.com)                                                       | ~2% + GST                                     | ₹0                 | RazorpayX | Startups, SaaS, Healthcare             |
+| [Cashfree Payments](https://www.cashfree.com?utm_source=chatgpt.com)                                          | 1.6%–1.95% + GST (promotional/plan dependent) | ₹0                 | Excellent | High-volume businesses ([Cashfree][1]) |
+| [PayU](https://payu.in?utm_source=chatgpt.com)                                                                | Starts around 2% + GST                        | ₹0                 | Good      | Established businesses ([PayU][2])     |
+| [PhonePe Payment Gateway](https://www.phonepe.com/business-solutions/payment-gateway/?utm_source=chatgpt.com) | Custom                                        | ₹0                 | Limited   | UPI-heavy businesses                   |
+| [CCAvenue](https://www.ccavenue.com?utm_source=chatgpt.com)                                                   | ~2%+                                          | Often annual plans | Average   | Large enterprises                      |
+| [Stripe India](https://stripe.com/in?utm_source=chatgpt.com)                                                  | Higher                                        | ₹0                 | Good      | International payments                 |
+
+[1]: https://www.cashfree.com/payment-gateway-charges/?utm_source=chatgpt.com "Payment Gateway Charges | Lowest Pricing & UPI ..."
+[2]: https://payu.in/pricing-test/?utm_source=chatgpt.com "Pricing Test"
+
+
+REPORT
+
+According to the FRD, MedCred should generate:
+
+Daily Reports
+Monthly Reports
+Claim Analytics
+Registration Analytics
+Agent Performance Reports
+Revenue Reports
+Excel Export
+PDF Export
+
+
+Report Architecture
+
+I would divide reports into 7 major categories.
+
+User Reports
+Card Reports
+Claim Reports
+Agent Reports
+Revenue Reports
+Hospital Reports
+System Reports
